@@ -2,6 +2,15 @@ machine:
   services:
     - docker
 
+dependencies:
+  cache_directories:
+    - "~/centos-base"
+  override:
+    - docker info
+    - if [[ -e ~/centos-base/image.tar ]]; then docker load --input ~/centos-base/image.tar; fi
+    - docker build -t jfrutos/centos-base .
+    - mkdir -p ~/centos-base; docker save --output ~/centos-base/image.tar jfrutos/centos-base
+
 deployment:
   dockehub:
     branch: master
@@ -10,11 +19,3 @@ deployment:
 test:
   override:
     - docker run -it jfrutos/centos-base echo "Hello World"
-  dependencies:
-    cache_directories:
-      - "~/centos-base"
-    override:
-      - docker info
-      - if [[ -e ~/centos-base/image.tar ]]; then docker load --input ~/centos-base/image.tar; fi
-      - docker build -t jfrutos/centos-base .
-      - mkdir -p ~/centos-base; docker save --output ~/centos-base/image.tar jfrutos/centos-base
